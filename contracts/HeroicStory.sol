@@ -29,10 +29,10 @@ contract HeroicStory is ERC721Tradable {
   mapping(uint => GameResults) public results;
 
   /// @dev Events.
-  event FeeReceived(address payee, uint amount);
-  event PoolUpdated(uint tokenId, uint totalPoolAmount);
-  event GameResultSubmitted(uint tokenId, address[] contributors, uint[] shares);
-  event SharesCollected(address contributor, uint tokenId, uint shares, uint payout);
+  event FeeReceived(address indexed payee, uint indexed amount);
+  event PoolUpdated(uint indexed tokenId, uint totalPoolAmount);
+  event GameResultSubmitted(uint indexed tokenId, address[] contributors, uint[] shares);
+  event SharesCollected(address indexed contributor, uint indexed tokenId, uint shares, uint payout);
 
   /**
   *   @dev Whitelist the proxy accounts of OpenSea users so that they are automatically able to trade any item on 

@@ -18,7 +18,7 @@ contract ProxyRegistry {
 }
 
 /**
- * @title ERC721Tradable
+ * @title ERC721Tradable (modified)
  * ERC721Tradable - ERC721 contract that whitelists a trading address, and has minting functionality.
  */
 abstract contract ERC721Tradable is ContextMixin, ERC721Enumerable, NativeMetaTransaction, Ownable {
@@ -26,6 +26,8 @@ abstract contract ERC721Tradable is ContextMixin, ERC721Enumerable, NativeMetaTr
 
     address proxyRegistryAddress;
     uint256 private _currentTokenId = 0;
+
+    event MintedNFT(uint indexed tokenId, address indexed receiver, address indexed derivedFromNFT, uint derivedFromTokenId);
 
     constructor(
         string memory _name,
@@ -40,10 +42,12 @@ abstract contract ERC721Tradable is ContextMixin, ERC721Enumerable, NativeMetaTr
      * @dev Mints a token to an address with a tokenURI.
      * @param _to address of the future owner of the token
      */
-    function mintTo(address _to) public onlyOwner {
+    function mintTo(address _to, address originNFTAddress, uint originNFTTokenId) public onlyOwner {
         uint256 newTokenId = _getNextTokenId();
         _mint(_to, newTokenId);
         _incrementTokenId();
+
+        emit MintedNFT(newTokenId, _msgSender(), originNFTAddress, originNFTTokenId);
     }
 
     /**
