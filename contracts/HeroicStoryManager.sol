@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract HeroicStoryManager is Ownable {
 
-  address public heroicStory;
+  HeroicStory public heroicStory;
   
   uint public MAX_BPS = 10000;
 
@@ -30,13 +30,15 @@ contract HeroicStoryManager is Ownable {
   constructor() {}
 
   event FeeReceived(address payee, uint amount);
+  event GameResultSubmitted(uint tokenId, address[] contributors, uint[] shares);
+  event SharesCollected(address contributor, uint tokenId, uint shares, uint payout);
 
   /// @dev Let the contract receive Ether payments.
   receive() external payable {
     emit FeeReceived(msg.sender, msg.value);
   }
 
-  /// @dev deploys the `HeroicStory` NFT collection.
+  /// @dev Deploys the `HeroicStory` NFT collection.
   function beginStory(
     
     string memory _name,
@@ -54,23 +56,32 @@ contract HeroicStoryManager is Ownable {
     bytes32 salt = keccak256(abi.encodePacked("Heroic Story", block.number));
 
     // Deploy `HeroicStory`
-    heroicStory = Create2.deploy(0, salt, heroicStoryBytecode);
+    address heroicStoryAddress = Create2.deploy(0, salt, heroicStoryBytecode);
+    
+    // Set `HeroicStory`
+    heroicStory = HeroicStory(heroicStoryAddress);
   }
 
-  function updateResults(uint tokenId, address[] calldata _contributors, uint[] calldata _shares) external onlyOwner {
+  /// @dev Stores the result of a round of Heroic Story.
+  function updateResults(uint _tokenId, address[] calldata _contributors, uint[] calldata _shares) external onlyOwner {
     
     require(_contributors.length == _shares.length, "Heroic Story: unequal amounts of contributors and shares");
 
-    results[tokenId] = GameResults({
-      tokenId: tokenId,
+    uint currentPool = results[_tokenId].totalPool;
+
+    results[_tokenId] = GameResults({
+      tokenId: _tokenId,
       totalContributors: _contributors.length,
-      totalPool: 0,
+      totalPool: currentPool,
 
       contributors: _contributors,
       shares: _shares
     });
+
+    emit GameResultSubmitted(_tokenId, _contributors, _shares);
   }
 
+  /// @dev Lets a contributor withraw their stake in the round's accrued sales fees.
   function collectPayout(uint _tokenId) external {
 
     GameResults memory gameResults = results[_tokenId];
@@ -88,5 +99,7 @@ contract HeroicStoryManager is Ownable {
 
     (bool success,) = (msg.sender).call{ value: payout }("");
     require(success, "Heroic Story Manager: failed payout.");
+
+    emit SharesCollected(msg.sender, _tokenId, gameResults.shares[idx], payout);
   }
 }
