@@ -68,7 +68,7 @@ contract HeroicStory is ERC721Tradable {
     require(_contributors.length == _shares.length, "Heroic Story: unequal amounts of contributors and shares");
 
     // Store game results.
-    
+
     uint currentPool = results[_tokenId].allTimePool;
     uint currentPayoutRounds = results[_tokenId].payoutRounds;
 
@@ -108,13 +108,11 @@ contract HeroicStory is ERC721Tradable {
     
     GameResults memory gameResults = results[_tokenId];
 
-    // A contributor can't claim more payouts than payout rounds.
-    require(payoutClaims[_tokenId][_msgSender()] < gameResults.payoutRounds, "Heroic Story: already claimed payout");
-    
-    // Update the contributor's # of payouts claimed.
-    payoutClaims[_tokenId][_msgSender()] += 1;
     // Get the round # of this payout.
     uint roundForPayout = payoutClaims[_tokenId][_msgSender()];
+
+    // A contributor can't claim more payouts than payout rounds.
+    require(roundForPayout < gameResults.payoutRounds, "Heroic Story: already claimed payout");
 
     // Get payout shares.
     uint idx = gameResults.contributors.length;
@@ -126,13 +124,20 @@ contract HeroicStory is ERC721Tradable {
       }
     }
 
-    // Calculate payout.
-    uint payout = (totalPoolByRound[_tokenId][roundForPayout] * gameResults.shares[idx]) / MAX_BPS;
+    // Calculate total amount to pay.
+    uint totalAmountToPay;
+
+    for(uint j = roundForPayout; j < gameResults.payoutRounds; j += 1) {
+      totalAmountToPay += (totalPoolByRound[_tokenId][roundForPayout] * gameResults.shares[idx]) / MAX_BPS;
+    }
+
+    // Update the contributor's # of payouts claimed.
+    payoutClaims[_tokenId][_msgSender()] = gameResults.payoutRounds;
 
     // Send payment.
-    (bool success,) = (_msgSender()).call{ value: payout }("");
+    (bool success,) = (_msgSender()).call{ value: totalAmountToPay }("");
     require(success, "Heroic Story Manager: failed payout.");
 
-    emit SharesCollected(_msgSender(), _tokenId, gameResults.shares[idx], payout);
+    emit SharesCollected(_msgSender(), _tokenId, gameResults.shares[idx], totalAmountToPay);
   }
 }
