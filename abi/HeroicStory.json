@@ -592,6 +592,30 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "payoutClaims",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "renounceOwnership",
     "outputs": [],
@@ -616,6 +640,11 @@
       {
         "internalType": "uint256",
         "name": "totalContributors",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "payoutRounds",
         "type": "uint256"
       },
       {
