@@ -1,6 +1,6 @@
 ## HeroicStory.sol addresses
 
-- Rinkeby: [0x2795d6a72c6b93BC4264dA368dCD49405033EDa9](https://rinkeby.etherscan.io/address/0x2795d6a72c6b93BC4264dA368dCD49405033EDa9#code)
+- Rinkeby: [0x2d9ceE62d6b979E4b8F9122eC5d29eBfBA432924](https://rinkeby.etherscan.io/address/0x2d9ceE62d6b979E4b8F9122eC5d29eBfBA432924#code)
 
 ## Running locally
 
