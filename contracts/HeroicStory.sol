@@ -6,11 +6,12 @@ import { ERC721Tradable } from "./ERC721Tradable.sol";
 
 contract HeroicStory is ERC721Tradable {
   
-  address public heroicStoryManager;
-    
+  /// @dev URI-related variables.
   string public _contractURI;
   string public _base;
+  bool public FrozenURI;
 
+  /// @dev 10000 is 100 %.
   uint public MAX_BPS = 10000;
 
   struct GameResults {
@@ -21,10 +22,13 @@ contract HeroicStory is ERC721Tradable {
 
     address[] contributors;
     uint[] shares;
+
   }
 
+  /// @dev Mapping from NFT tokenId => Game results.
   mapping(uint => GameResults) public results;
 
+  /// @dev Events.
   event FeeReceived(address payee, uint amount);
   event PoolUpdated(uint tokenId, uint totalPoolAmount);
   event GameResultSubmitted(uint tokenId, address[] contributors, uint[] shares);
@@ -52,16 +56,24 @@ contract HeroicStory is ERC721Tradable {
     return _contractURI;
   }
 
-  /// @dev Let `HeroicStoryManager` set the contract URI
+  /// @dev Sets contract URI for the storefront-level metadata of the contract.
   function setContractURI(string calldata _URI) external onlyOwner {
+    require(!FrozenURI, "Heroic Story: URI is frozen.");
     _contractURI = _URI;
   } 
   
-  /// @dev Let `HeroicStoryManager` set the contract URI
+  /// @dev Sets the base URI for the contract's NFTs.
   function setBasetURI(string calldata _URI) external onlyOwner {
+    require(!FrozenURI, "Heroic Story: URI is frozen.");
     _base = _URI;
   }
 
+  /// @dev Makes URI uneditable.
+  function freezeURI() external {
+    FrozenURI = true;
+  }
+
+  /// @dev Update the results of a game.
   function updateResults(uint _tokenId, address[] calldata _contributors, uint[] calldata _shares) external onlyOwner {
     
     require(_contributors.length == _shares.length, "Heroic Story: unequal amounts of contributors and shares");
@@ -80,13 +92,14 @@ contract HeroicStory is ERC721Tradable {
     emit GameResultSubmitted(_tokenId, _contributors, _shares);
   }
 
+  /// @dev Update the pool size of a game.
   function updatePool(uint _tokenId, uint _amount) external onlyOwner {
     results[_tokenId].totalPool = _amount;
 
     emit PoolUpdated(_tokenId, results[_tokenId].totalPool);
   }
 
-  /// @dev Lets a contributor withraw their stake in the round's accrued sales fees.
+  /// @dev Lets a contributor withraw their stake in their game NFT's accrued sales fees.
   function collectPayout(uint _tokenId) external {
 
     GameResults memory gameResults = results[_tokenId];
