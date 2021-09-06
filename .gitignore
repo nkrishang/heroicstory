@@ -22,3 +22,4 @@ yarn-error.log*
 
 # Dev notes
 *.txt
+/wordloops-metadata

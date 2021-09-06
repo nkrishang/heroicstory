@@ -27,7 +27,10 @@ abstract contract ERC721Tradable is ContextMixin, ERC721Enumerable, NativeMetaTr
     address proxyRegistryAddress;
     uint256 private _currentTokenId = 0;
 
-    event MintedNFT(uint indexed tokenId, address indexed receiver, address indexed derivedFromNFT, uint derivedFromTokenId);
+    /// @dev Mapping from NFT tokenId => metadata URI
+    mapping(uint => string) public URIs;
+
+    event MintedNFT(uint indexed tokenId, string URI, address indexed receiver, address indexed derivedFromNFT, uint derivedFromTokenId);
 
     constructor(
         string memory _name,
@@ -37,17 +40,24 @@ abstract contract ERC721Tradable is ContextMixin, ERC721Enumerable, NativeMetaTr
         proxyRegistryAddress = _proxyRegistryAddress;
         _initializeEIP712(_name);
     }
+    
+    /// @dev Returns the metadata URI for a given tokenId.
+    function tokenURI(uint256 _tokenId) override public view returns (string memory) {
+        return URIs[_tokenId];
+    }
 
     /**
      * @dev Mints a token to an address with a tokenURI.
      * @param _to address of the future owner of the token
      */
-    function mintTo(address _to, address originNFTAddress, uint originNFTTokenId) public onlyOwner {
+    function mintTo(address _to, string calldata _URI, address originNFTAddress, uint originNFTTokenId) public onlyOwner {
         uint256 newTokenId = _getNextTokenId();
         _mint(_to, newTokenId);
         _incrementTokenId();
 
-        emit MintedNFT(newTokenId, _msgSender(), originNFTAddress, originNFTTokenId);
+        URIs[newTokenId] = _URI;
+
+        emit MintedNFT(newTokenId, _URI, _msgSender(), originNFTAddress, originNFTTokenId);
     }
 
     /**
@@ -63,12 +73,6 @@ abstract contract ERC721Tradable is ContextMixin, ERC721Enumerable, NativeMetaTr
      */
     function _incrementTokenId() private {
         _currentTokenId++;
-    }
-
-    function baseTokenURI() virtual public view returns (string memory);
-
-    function tokenURI(uint256 _tokenId) override public view returns (string memory) {
-        return string(abi.encodePacked(baseTokenURI(), Strings.toString(_tokenId)));
     }
 
     /**

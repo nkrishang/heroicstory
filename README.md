@@ -1,6 +1,6 @@
 ## HeroicStory.sol addresses
 
-- Rinkeby: [0xfE42876b6b65DBD60922597C664c114DC927136b](https://rinkeby.etherscan.io/address/0xfE42876b6b65DBD60922597C664c114DC927136b#code)
+- Rinkeby: [0xe6F3462A251A67c5Df5F0Cf6Fe07574F447A931B](https://rinkeby.etherscan.io/address/0xe6F3462A251A67c5Df5F0Cf6Fe07574F447A931B#code)
 
 Clone the repository.
 

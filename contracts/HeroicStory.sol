@@ -8,8 +8,6 @@ contract HeroicStory is ERC721Tradable {
   
   /// @dev URI-related variables.
   string public _contractURI;
-  string public _base;
-  bool public FrozenURI;
 
   /// @dev 10000 is 100 %.
   uint public MAX_BPS = 10000;
@@ -45,11 +43,6 @@ contract HeroicStory is ERC721Tradable {
     address _proxyRegistryAddress
   
   ) ERC721Tradable(_name, _symbol, _proxyRegistryAddress) {}
-
-  /// @dev Returns the base URI for the contract's NFTs.
-  function baseTokenURI() public view override returns (string memory) {
-    return _base;
-  }
   
   /// @dev Returns the URI for the storefront-level metadata of the contract.
   function contractURI() public view returns (string memory) {
@@ -58,19 +51,7 @@ contract HeroicStory is ERC721Tradable {
 
   /// @dev Sets contract URI for the storefront-level metadata of the contract.
   function setContractURI(string calldata _URI) external onlyOwner {
-    require(!FrozenURI, "Heroic Story: URI is frozen.");
     _contractURI = _URI;
-  } 
-  
-  /// @dev Sets the base URI for the contract's NFTs.
-  function setBasetURI(string calldata _URI) external onlyOwner {
-    require(!FrozenURI, "Heroic Story: URI is frozen.");
-    _base = _URI;
-  }
-
-  /// @dev Makes URI uneditable.
-  function freezeURI() external {
-    FrozenURI = true;
   }
 
   /// @dev Update the results of a game.
