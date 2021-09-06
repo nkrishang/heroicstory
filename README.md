@@ -1,6 +1,8 @@
 ## HeroicStory.sol addresses
 
-- Rinkeby: [0x08fE631a040E98e13463fA3A263C14D420bB0123](https://rinkeby.etherscan.io/address/0x08fE631a040E98e13463fA3A263C14D420bB0123#code)
+- Rinkeby: [0x2795d6a72c6b93BC4264dA368dCD49405033EDa9](https://rinkeby.etherscan.io/address/0x2795d6a72c6b93BC4264dA368dCD49405033EDa9#code)
+
+## Running locally
 
 Clone the repository.
 
@@ -13,5 +15,7 @@ Install the dependencies.
 ```bash
 yarn install
 ```
+
+Create a `.env` file with the `.env.example` file as referenec.
 
 Write smart contract code in `/contracts`, tests in `/test` and scripts in `/scripts`
