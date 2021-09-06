@@ -17,6 +17,7 @@ contract HeroicStoryManager is Ownable {
     
     uint tokenId;
     uint totalContributors;
+    uint totalPool;
 
     address[] contributors;
     uint[] shares;
@@ -63,6 +64,7 @@ contract HeroicStoryManager is Ownable {
     results[tokenId] = GameResults({
       tokenId: tokenId,
       totalContributors: _contributors.length,
+      totalPool: 0,
 
       contributors: _contributors,
       shares: _shares
@@ -70,6 +72,21 @@ contract HeroicStoryManager is Ownable {
   }
 
   function collectPayout(uint _tokenId) external {
-    
+
+    GameResults memory gameResults = results[_tokenId];
+
+    uint idx = gameResults.contributors.length;
+
+    for(uint i = 0; i < gameResults.contributors.length; i += 1) {
+      if(gameResults.contributors[i] == msg.sender) {
+        idx = i;
+        break;
+      }
+    }
+
+    uint payout = (gameResults.totalPool * gameResults.shares[idx]) / MAX_BPS;
+
+    (bool success,) = (msg.sender).call{ value: payout }("");
+    require(success, "Heroic Story Manager: failed payout.");
   }
 }
