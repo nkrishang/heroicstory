@@ -102,4 +102,14 @@ contract HeroicStoryManager is Ownable {
 
     emit SharesCollected(msg.sender, _tokenId, gameResults.shares[idx], payout);
   }
+
+  /// @dev Let `HeroicStoryManager` set the contract URI
+  function setContractURI(string calldata _URI) external onlyOwner {
+    heroicStory.setContractURI(_URI);
+  } 
+  
+  /// @dev Let `HeroicStoryManager` set the contract URI
+  function setBasetURI(string calldata _URI) external onlyOwner {
+    heroicStory.setBasetURI(_URI);
+  }
 }
