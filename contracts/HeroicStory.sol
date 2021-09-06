@@ -18,7 +18,7 @@ contract HeroicStory is ERC721Tradable {
     uint totalContributors;
     
     uint payoutRounds;
-    uint totalPool;
+    uint allTimePool;
 
     address[] contributors;
     uint[] shares;
@@ -27,11 +27,16 @@ contract HeroicStory is ERC721Tradable {
 
   /// @dev Mapping from NFT tokenId => Game results.
   mapping(uint => GameResults) public results;
+
+  /// @dev Mapping from NFT tokenId => contributor address => number of payouts claimed.
   mapping(uint => mapping(address => uint)) public payoutClaims;
+
+  /// @dev Mapping from NFT tokenId => payout round => total pool for that round.
+  mapping(uint => mapping(uint => uint)) public totalPoolByRound;
 
   /// @dev Events.
   event FeeReceived(address indexed payee, uint indexed amount);
-  event PoolUpdated(uint indexed tokenId, uint totalPoolAmount);
+  event PoolUpdated(uint indexed tokenId, uint allTimePoolAmount, uint newPoolAmount);
   event GameResultSubmitted(uint indexed tokenId, address[] contributors, uint[] shares);
   event SharesCollected(address indexed contributor, uint indexed tokenId, uint shares, uint payout);
 
@@ -62,14 +67,16 @@ contract HeroicStory is ERC721Tradable {
     
     require(_contributors.length == _shares.length, "Heroic Story: unequal amounts of contributors and shares");
 
-    uint currentPool = results[_tokenId].totalPool;
+    // Store game results.
+    
+    uint currentPool = results[_tokenId].allTimePool;
     uint currentPayoutRounds = results[_tokenId].payoutRounds;
 
     results[_tokenId] = GameResults({
       tokenId: _tokenId,
       totalContributors: _contributors.length,
-      payoutRounds: currentPayoutRounds + 1,
-      totalPool: currentPool,
+      payoutRounds: currentPayoutRounds,
+      allTimePool: currentPool,
 
       contributors: _contributors,
       shares: _shares
@@ -80,9 +87,20 @@ contract HeroicStory is ERC721Tradable {
 
   /// @dev Update the pool size of a game.
   function updatePool(uint _tokenId, uint _amount) external onlyOwner {
-    results[_tokenId].totalPool = _amount;
+    
+    GameResults memory gameResults = results[_tokenId];
 
-    emit PoolUpdated(_tokenId, results[_tokenId].totalPool);
+    // Update global vars for the particular game.
+    gameResults.allTimePool += _amount;
+    gameResults.payoutRounds += 1;
+
+    // Store payout pool for this particular round.
+    totalPoolByRound[_tokenId][gameResults.payoutRounds] = _amount;
+
+    // Store updated game results.
+    results[_tokenId] = gameResults;
+
+    emit PoolUpdated(_tokenId, gameResults.allTimePool, _amount);
   }
 
   /// @dev Lets a contributor withraw their stake in their game NFT's accrued sales fees.
@@ -90,9 +108,15 @@ contract HeroicStory is ERC721Tradable {
     
     GameResults memory gameResults = results[_tokenId];
 
+    // A contributor can't claim more payouts than payout rounds.
     require(payoutClaims[_tokenId][_msgSender()] < gameResults.payoutRounds, "Heroic Story: already claimed payout");
+    
+    // Update the contributor's # of payouts claimed.
     payoutClaims[_tokenId][_msgSender()] += 1;
+    // Get the round # of this payout.
+    uint roundForPayout = payoutClaims[_tokenId][_msgSender()];
 
+    // Get payout shares.
     uint idx = gameResults.contributors.length;
 
     for(uint i = 0; i < gameResults.contributors.length; i += 1) {
@@ -102,8 +126,10 @@ contract HeroicStory is ERC721Tradable {
       }
     }
 
-    uint payout = (gameResults.totalPool * gameResults.shares[idx]) / MAX_BPS;
+    // Calculate payout.
+    uint payout = (totalPoolByRound[_tokenId][roundForPayout] * gameResults.shares[idx]) / MAX_BPS;
 
+    // Send payment.
     (bool success,) = (_msgSender()).call{ value: payout }("");
     require(success, "Heroic Story Manager: failed payout.");
 
