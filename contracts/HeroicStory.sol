@@ -16,6 +16,8 @@ contract HeroicStory is ERC721Tradable {
     
     uint tokenId;
     uint totalContributors;
+    
+    uint payoutRounds;
     uint totalPool;
 
     address[] contributors;
@@ -25,6 +27,7 @@ contract HeroicStory is ERC721Tradable {
 
   /// @dev Mapping from NFT tokenId => Game results.
   mapping(uint => GameResults) public results;
+  mapping(uint => mapping(address => uint)) public payoutClaims;
 
   /// @dev Events.
   event FeeReceived(address indexed payee, uint indexed amount);
@@ -60,10 +63,12 @@ contract HeroicStory is ERC721Tradable {
     require(_contributors.length == _shares.length, "Heroic Story: unequal amounts of contributors and shares");
 
     uint currentPool = results[_tokenId].totalPool;
+    uint currentPayoutRounds = results[_tokenId].payoutRounds;
 
     results[_tokenId] = GameResults({
       tokenId: _tokenId,
       totalContributors: _contributors.length,
+      payoutRounds: currentPayoutRounds + 1,
       totalPool: currentPool,
 
       contributors: _contributors,
@@ -82,13 +87,16 @@ contract HeroicStory is ERC721Tradable {
 
   /// @dev Lets a contributor withraw their stake in their game NFT's accrued sales fees.
   function collectPayout(uint _tokenId) external {
-
+    
     GameResults memory gameResults = results[_tokenId];
+
+    require(payoutClaims[_tokenId][_msgSender()] < gameResults.payoutRounds, "Heroic Story: already claimed payout");
+    payoutClaims[_tokenId][_msgSender()] += 1;
 
     uint idx = gameResults.contributors.length;
 
     for(uint i = 0; i < gameResults.contributors.length; i += 1) {
-      if(gameResults.contributors[i] == msg.sender) {
+      if(gameResults.contributors[i] == _msgSender()) {
         idx = i;
         break;
       }
@@ -96,9 +104,9 @@ contract HeroicStory is ERC721Tradable {
 
     uint payout = (gameResults.totalPool * gameResults.shares[idx]) / MAX_BPS;
 
-    (bool success,) = (msg.sender).call{ value: payout }("");
+    (bool success,) = (_msgSender()).call{ value: payout }("");
     require(success, "Heroic Story Manager: failed payout.");
 
-    emit SharesCollected(msg.sender, _tokenId, gameResults.shares[idx], payout);
+    emit SharesCollected(_msgSender(), _tokenId, gameResults.shares[idx], payout);
   }
 }
