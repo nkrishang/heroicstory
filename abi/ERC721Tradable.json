@@ -79,6 +79,37 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "derivedFromNFT",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "derivedFromTokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "MintedNFT",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "previousOwner",
         "type": "address"
@@ -306,6 +337,29 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_to",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "originNFTAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "originNFTTokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "mintTo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

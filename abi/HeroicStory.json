@@ -74,13 +74,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "payee",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
@@ -93,7 +93,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
@@ -144,6 +144,37 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "derivedFromNFT",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "derivedFromTokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "MintedNFT",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "previousOwner",
         "type": "address"
@@ -162,7 +193,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
@@ -181,13 +212,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "contributor",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
@@ -241,6 +272,19 @@
         "internalType": "string",
         "name": "",
         "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "FrozenURI",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -401,6 +445,13 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "freezeURI",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -465,19 +516,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "heroicStoryManager",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -499,6 +537,29 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_to",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "originNFTAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "originNFTTokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "mintTo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
