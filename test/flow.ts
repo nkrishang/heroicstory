@@ -3,12 +3,12 @@ import { expect } from "chai"
 import { Contract, ContractFactory } from "@ethersproject/contracts"
 import { Signer } from "@ethersproject/abstract-signer"
 
-describe("Testing entire basic flow", function() {
-  
+describe("Testing entire basic flow", function () {
+
   // Get signers.
   let owner: Signer;
   let contributors: Signer[];
-  
+
   // Get contract objects.
   let heroicStoryFactory: ContractFactory;
   let heroicStory: Contract;
@@ -50,8 +50,7 @@ describe("Testing entire basic flow", function() {
 
     it("Should let owner mint the NFT successfully", async () => {
       const MintedNFTPromise = new Promise((resolve, reject) => {
-        heroicStory.on("MintedNFT", async (tokenId, minter, derivedFromNFT, derivedFromTokenId) => {
-
+        heroicStory.on("MintedNFT", async (tokenId, _uri, minter, derivedFromNFT, derivedFromTokenId) => {
           console.log(tokenId, minter, derivedFromNFT, derivedFromTokenId)
 
           expect(tokenId).to.equal(nftTokenId);
@@ -67,7 +66,7 @@ describe("Testing entire basic flow", function() {
         }, 10000)
       })
 
-      await heroicStory.mintTo(await owner.getAddress(), lootAddress, lootTokenId);
+      await heroicStory.mintTo(await owner.getAddress(), "", lootAddress, lootTokenId);
       await MintedNFTPromise;
 
       expect(await heroicStory.ownerOf(nftTokenId)).to.equal(await owner.getAddress());
