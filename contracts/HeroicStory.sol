@@ -104,6 +104,9 @@ contract HeroicStory is ERC721Tradable {
         payable
         onlyOwner
     {
+
+        require(_amount == msg.value, "Heroic Story: must fund the contract with the given amount.");
+
         GameResults memory gameResults = results[_tokenId];
 
         // Update global vars for the particular game.
