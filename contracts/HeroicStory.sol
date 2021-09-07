@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 
 import {ERC721Tradable} from "./ERC721Tradable.sol";
 
+import "hardhat/console.sol";
+
 contract HeroicStory is ERC721Tradable {
     /// @dev URI-related variables.
     string public _contractURI;
@@ -122,11 +124,11 @@ contract HeroicStory is ERC721Tradable {
         GameResults memory gameResults = results[_tokenId];
 
         // Get the round # of this payout.
-        uint256 roundForPayout = payoutClaims[_tokenId][_msgSender()];
+        uint256 roundForPayout = payoutClaims[_tokenId][_msgSender()] + 1;
 
         // A contributor can't claim more payouts than payout rounds.
         require(
-            roundForPayout < gameResults.payoutRounds,
+            roundForPayout <= gameResults.payoutRounds,
             "Heroic Story: already claimed payout"
         );
 
@@ -143,7 +145,8 @@ contract HeroicStory is ERC721Tradable {
         // Calculate total amount to pay.
         uint256 totalAmountToPay;
 
-        for (uint256 j = roundForPayout; j < gameResults.payoutRounds; j += 1) {
+        for (uint256 j = roundForPayout; j <= gameResults.payoutRounds; j += 1) {
+
             totalAmountToPay +=
                 (totalPoolByRound[_tokenId][roundForPayout] *
                     gameResults.shares[idx]) /
