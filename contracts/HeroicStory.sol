@@ -133,6 +133,35 @@ contract HeroicStory is ERC721Tradable {
         emit PoolUpdated(_tokenId, gameResults.allTimePool, _amount);
     }
 
+    /// @dev Update pools in batches.
+    function updatePoolBatch(uint[] calldata _tokenIds, uint[] calldata _amounts) external payable onlyOwner {
+        require(_tokenIds.length == _amounts.length, "Heroic Story: unequal number of ids and amounts provided.");
+
+        uint totalValue;
+
+        for(uint i = 0; i < _tokenIds.length; i += 1) {
+            
+            // Update total value
+            totalValue += _amounts[i];            
+            
+            // Update global vars for the particular game.
+            GameResults memory gameResults = results[_tokenIds[i]];
+
+            gameResults.allTimePool += _amounts[i];
+            gameResults.payoutRounds += 1;
+
+            // Store payout pool for this particular round.
+            totalPoolByRound[_tokenIds[i]][gameResults.payoutRounds] = _amounts[i];
+
+            // Store updated game results.
+            results[_tokenIds[i]] = gameResults;
+
+            emit PoolUpdated(_tokenIds[i], gameResults.allTimePool, _amounts[i]);
+        }
+
+        require(totalValue == msg.value, "Heroic Story: must fund the contract with the given amount.");
+    }
+
     /// @dev Lets a contributor withraw their stake in their game NFT's accrued sales fees.
     function collectPayout(uint256 _tokenId) external {
         GameResults memory gameResults = results[_tokenId];
