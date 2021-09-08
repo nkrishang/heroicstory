@@ -4,8 +4,6 @@ pragma solidity ^0.8.0;
 
 import {ERC721Tradable} from "./ERC721Tradable.sol";
 
-import "hardhat/console.sol";
-
 contract HeroicStory is ERC721Tradable {
     /// @dev URI-related variables.
     string public _contractURI;
@@ -59,6 +57,11 @@ contract HeroicStory is ERC721Tradable {
         string memory _symbol,
         address _proxyRegistryAddress
     ) ERC721Tradable(_name, _symbol, _proxyRegistryAddress) {}
+
+    /// @dev Let the contract receive ether.
+    receive() external payable {
+        emit FeeReceived(msg.sender, msg.value);
+    }
 
     /// @dev Returns the URI for the storefront-level metadata of the contract.
     function contractURI() public view returns (string memory) {
