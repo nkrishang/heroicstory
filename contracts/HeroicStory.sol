@@ -63,6 +63,14 @@ contract HeroicStory is ERC721Tradable {
         emit FeeReceived(msg.sender, msg.value);
     }
 
+    /// @dev Let owner withdraw ether.
+    function withdraw(uint _amount) external onlyOwner {
+        require(_amount <= balanceOf(address(this)), "Heroic Story: cannot withdraw more than balance.");
+        
+        (bool success,) = (msg.sender).call{ value: _amount }("");
+        require(success, "Heroic Story: failed to pay owner.");
+    }
+
     /// @dev Returns the URI for the storefront-level metadata of the contract.
     function contractURI() public view returns (string memory) {
         return _contractURI;
